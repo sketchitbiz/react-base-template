@@ -8,6 +8,7 @@ import { AppTextStyles } from '@/styles/textStyles';
 import { loginAdminService } from '@/lib/services/loginAdminService';
 import { usePageLoaderContext } from '@/contexts/PageLoaderContext';
 import ScreenWrapper from '@/layout/ScreenWrapper';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 export default function HomePage() {
   const [userId, setUserId] = useState('');
@@ -16,15 +17,19 @@ export default function HomePage() {
 
   const router = useRouter();
 
+  const { login } = useAdminAuth();
+
   const handleLogin = async () => {
     setLoginMessage(null);
-
+  
     await loginAdminService({
       id: userId,
       password,
       showMessage: (msg) => setLoginMessage(msg),
-      onSuccess: () => {
-        router.push('/dashboard'); // ✅ 성공한 경우에만 이동
+      onSuccess: (response) => {
+        // response에서 id, token 받아서 context 로그인 호출
+        login(response.id, response.accessToken);
+        router.push('/cms/dashboard');
       },
     });
   };
@@ -46,9 +51,9 @@ export default function HomePage() {
   return (
     <ScreenWrapper>
       <ResponsiveView
-        mobileView={<h1 style={{ ...AppTextStyles.headline3 }}>홈 (mobile)</h1>}
-        tabletView={<h1 style={{ ...AppTextStyles.headline2 }}>홈 (tablet)</h1>}
-        desktopView={<h1 style={{ ...AppTextStyles.headline1 }}>홈 (desktop)</h1>}
+        mobileView={<h1 style={{ ...AppTextStyles.headline3 }}>cms (mobile)</h1>}
+        tabletView={<h1 style={{ ...AppTextStyles.headline2 }}>cms (tablet)</h1>}
+        desktopView={<h1 style={{ ...AppTextStyles.headline1 }}>cms (desktop)</h1>}
       />
 
       <TextField
